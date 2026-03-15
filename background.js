@@ -1,6 +1,6 @@
 
-const DEEPL_API_KEY = 'a071b20d-d3a7-4192-b28e-0126f87c0f66:fx';
-const SERP_API_KEY  = '7b35efd97089483fb39c8c4b6d1c14b4b10ec720e8d7c264166993f7641f62bb';
+const DEEPL_API_KEY = 'PUT_YOUR_DEEPL_API_KEY_HERE';
+const SERP_API_KEY  = 'PUT_YOUR_SERP_API_KEY_HERE';
 
 const DEEPL_BASE = 'https://api-free.deepl.com';
 
