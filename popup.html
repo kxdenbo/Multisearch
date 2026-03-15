@@ -12,7 +12,6 @@
       --border: rgba(0,0,0,0.1);
       --border-strong: rgba(0,0,0,0.2);
       --text-primary: #1a1a18;
-      --text-secondary: #6b6b66;
       --text-tertiary: #9e9e99;
       --bg-info: #e8f1fc;
       --text-info: #1a6ed8;
@@ -27,16 +26,16 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text-primary);
-      width: 340px;
+      width: 360px;
     }
 
-    .popup { padding: 16px; }
+    .popup { padding: 14px 14px 16px; }
 
     .header {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .logo {
@@ -47,6 +46,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
 
     .logo svg {
@@ -64,9 +64,10 @@
       color: var(--text-primary);
     }
 
+    /* Query input */
     .search-wrap {
       position: relative;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .search-icon {
@@ -96,27 +97,31 @@
     .search-input::placeholder { color: var(--text-tertiary); }
     .search-input:focus { border-color: var(--btn-bg); box-shadow: 0 0 0 3px rgba(26,110,216,0.12); }
 
+    /* Section labels */
     .section-label {
       font-size: 10px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.07em;
       color: var(--text-tertiary);
-      margin-bottom: 8px;
     }
 
-    .lang-grid {
+    /* Result type selector */
+    .type-section { margin-bottom: 12px; }
+
+    .type-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       gap: 6px;
-      margin-bottom: 14px;
+      margin-top: 8px;
     }
 
-    .lang-item {
+    .type-item {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 7px;
-      padding: 7px 10px;
+      gap: 5px;
+      padding: 8px 4px;
       background: var(--surface);
       border: 0.5px solid var(--border);
       border-radius: var(--radius-md);
@@ -124,16 +129,85 @@
       user-select: none;
     }
 
-    .lang-item:hover { background: #f0f0ee; }
+    .type-item:hover { background: #f0f0ee; }
 
-    .lang-item.selected {
+    .type-item.selected {
       background: var(--bg-info);
       border-color: var(--border-selected);
     }
 
+    .type-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .type-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-primary);
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .type-item.selected .type-label { color: var(--text-info); }
+
+    /* Language list */
+    .lang-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .select-actions { display: flex; gap: 8px; }
+
+    .action-btn {
+      font-size: 11px;
+      color: var(--text-info);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    .action-btn:hover { text-decoration: underline; }
+
+    .lang-scroll {
+      max-height: 220px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      border-radius: var(--radius-md);
+      border: 0.5px solid var(--border);
+      background: var(--surface);
+    }
+
+    .lang-scroll::-webkit-scrollbar { width: 4px; }
+    .lang-scroll::-webkit-scrollbar-track { background: transparent; }
+    .lang-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 10px;
+      background: var(--surface);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .lang-item:hover { background: #f5f5f3; }
+    .lang-item.selected { background: var(--bg-info); }
     .lang-item.selected .lang-name { color: var(--text-info); }
 
-    .lang-flag { font-size: 15px; line-height: 1; flex-shrink: 0; }
+    .lang-flag { font-size: 14px; line-height: 1; flex-shrink: 0; }
 
     .lang-name {
       font-size: 12px;
@@ -146,20 +220,22 @@
     }
 
     .checkmark {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       flex-shrink: 0;
       visibility: hidden;
     }
 
     .lang-item.selected .checkmark { visibility: visible; }
 
+    /* Divider */
     .divider {
       height: 0.5px;
       background: var(--border);
-      margin: 14px 0;
+      margin: 12px 0;
     }
 
+    /* Search button */
     .search-btn {
       width: 100%;
       height: 36px;
@@ -210,6 +286,7 @@
       <span class="app-name">MultiSearch</span>
     </div>
 
+    <!-- Query -->
     <div class="search-wrap">
       <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
         <circle cx="6.5" cy="6.5" r="4"/><line x1="10" y1="10" x2="14" y2="14"/>
@@ -224,48 +301,73 @@
       />
     </div>
 
-    <div class="section-label">Search in languages</div>
+    <!-- Result type -->
+    <div class="type-section">
+      <div class="section-label">Result type</div>
+      <div class="type-grid">
+        <div class="type-item selected" data-type="web">
+          <span class="type-icon">🌐</span>
+          <span class="type-label">General</span>
+        </div>
+        <div class="type-item" data-type="news">
+          <span class="type-icon">📰</span>
+          <span class="type-label">News</span>
+        </div>
+        <div class="type-item" data-type="blogs">
+          <span class="type-icon">✍️</span>
+          <span class="type-label">Blogs</span>
+        </div>
+        <div class="type-item" data-type="academic">
+          <span class="type-icon">🎓</span>
+          <span class="type-label">Academic</span>
+        </div>
+      </div>
+    </div>
 
-    <div class="lang-grid">
-      <div class="lang-item" data-lang="de">
-        <span class="lang-flag">🇩🇪</span>
-        <span class="lang-name">German</span>
-        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+    <!-- Languages -->
+    <div class="lang-header">
+      <span class="section-label">Search in languages</span>
+      <div class="select-actions">
+        <button class="action-btn" id="selectAll">Select all</button>
+        <button class="action-btn" id="clearAll">Clear</button>
       </div>
-      <div class="lang-item" data-lang="fr">
-        <span class="lang-flag">🇫🇷</span>
-        <span class="lang-name">French</span>
-        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
-      </div>
-      <div class="lang-item" data-lang="es">
-        <span class="lang-flag">🇪🇸</span>
-        <span class="lang-name">Spanish</span>
-        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
-      </div>
-      <div class="lang-item" data-lang="pt">
-        <span class="lang-flag">🇧🇷</span>
-        <span class="lang-name">Portuguese (BR)</span>
-        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
-      </div>
-      <div class="lang-item" data-lang="ja">
-        <span class="lang-flag">🇯🇵</span>
-        <span class="lang-name">Japanese</span>
-        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
-      </div>
-      <div class="lang-item" data-lang="zh">
-        <span class="lang-flag">🇨🇳</span>
-        <span class="lang-name">Chinese (CN)</span>
-        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
-      </div>
-      <div class="lang-item" data-lang="ar">
-        <span class="lang-flag">🇸🇦</span>
-        <span class="lang-name">Arabic</span>
-        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
-      </div>
-      <div class="lang-item" data-lang="ko">
-        <span class="lang-flag">🇰🇷</span>
-        <span class="lang-name">Korean</span>
-        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+    </div>
+
+    <div class="lang-scroll">
+      <div class="lang-grid" id="langGrid">
+
+        <div class="lang-item" data-lang="ar"><span class="lang-flag">🇸🇦</span><span class="lang-name">Arabic</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="bg"><span class="lang-flag">🇧🇬</span><span class="lang-name">Bulgarian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="cs"><span class="lang-flag">🇨🇿</span><span class="lang-name">Czech</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="da"><span class="lang-flag">🇩🇰</span><span class="lang-name">Danish</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="de"><span class="lang-flag">🇩🇪</span><span class="lang-name">German</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="el"><span class="lang-flag">🇬🇷</span><span class="lang-name">Greek</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="es"><span class="lang-flag">🇪🇸</span><span class="lang-name">Spanish</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="et"><span class="lang-flag">🇪🇪</span><span class="lang-name">Estonian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="fi"><span class="lang-flag">🇫🇮</span><span class="lang-name">Finnish</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="fr"><span class="lang-flag">🇫🇷</span><span class="lang-name">French</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="hu"><span class="lang-flag">🇭🇺</span><span class="lang-name">Hungarian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="id"><span class="lang-flag">🇮🇩</span><span class="lang-name">Indonesian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="it"><span class="lang-flag">🇮🇹</span><span class="lang-name">Italian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="ja"><span class="lang-flag">🇯🇵</span><span class="lang-name">Japanese</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="ko"><span class="lang-flag">🇰🇷</span><span class="lang-name">Korean</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="lt"><span class="lang-flag">🇱🇹</span><span class="lang-name">Lithuanian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="lv"><span class="lang-flag">🇱🇻</span><span class="lang-name">Latvian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="nb"><span class="lang-flag">🇳🇴</span><span class="lang-name">Norwegian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="nl"><span class="lang-flag">🇳🇱</span><span class="lang-name">Dutch</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="pl"><span class="lang-flag">🇵🇱</span><span class="lang-name">Polish</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="pt"><span class="lang-flag">🇧🇷</span><span class="lang-name">Portuguese (BR)</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="ptpt"><span class="lang-flag">🇵🇹</span><span class="lang-name">Portuguese (PT)</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="ro"><span class="lang-flag">🇷🇴</span><span class="lang-name">Romanian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="ru"><span class="lang-flag">🇷🇺</span><span class="lang-name">Russian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="sk"><span class="lang-flag">🇸🇰</span><span class="lang-name">Slovak</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="sl"><span class="lang-flag">🇸🇮</span><span class="lang-name">Slovenian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="sv"><span class="lang-flag">🇸🇪</span><span class="lang-name">Swedish</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="tr"><span class="lang-flag">🇹🇷</span><span class="lang-name">Turkish</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="uk"><span class="lang-flag">🇺🇦</span><span class="lang-name">Ukrainian</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="zh"><span class="lang-flag">🇨🇳</span><span class="lang-name">Chinese (Simplified)</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+        <div class="lang-item" data-lang="zhtw"><span class="lang-flag">🇹🇼</span><span class="lang-name">Chinese (Traditional)</span><svg class="checkmark" viewBox="0 0 12 12" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9.5 10.5,2.5"/></svg></div>
+
       </div>
     </div>
 

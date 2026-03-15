@@ -1,28 +1,70 @@
 const LANG_META = {
-  de: { flag: '🇩🇪', name: 'German'         },
-  fr: { flag: '🇫🇷', name: 'French'          },
-  es: { flag: '🇪🇸', name: 'Spanish'         },
-  pt: { flag: '🇧🇷', name: 'Portuguese (BR)' },
-  ja: { flag: '🇯🇵', name: 'Japanese'        },
-  zh: { flag: '🇨🇳', name: 'Chinese (CN)'    },
-  ar: { flag: '🇸🇦', name: 'Arabic'          },
-  ko: { flag: '🇰🇷', name: 'Korean'          },
+  ar:   { flag: '🇸🇦', name: 'Arabic'                  },
+  bg:   { flag: '🇧🇬', name: 'Bulgarian'                },
+  cs:   { flag: '🇨🇿', name: 'Czech'                    },
+  da:   { flag: '🇩🇰', name: 'Danish'                   },
+  de:   { flag: '🇩🇪', name: 'German'                   },
+  el:   { flag: '🇬🇷', name: 'Greek'                    },
+  es:   { flag: '🇪🇸', name: 'Spanish'                  },
+  et:   { flag: '🇪🇪', name: 'Estonian'                 },
+  fi:   { flag: '🇫🇮', name: 'Finnish'                  },
+  fr:   { flag: '🇫🇷', name: 'French'                   },
+  hu:   { flag: '🇭🇺', name: 'Hungarian'                },
+  id:   { flag: '🇮🇩', name: 'Indonesian'               },
+  it:   { flag: '🇮🇹', name: 'Italian'                  },
+  ja:   { flag: '🇯🇵', name: 'Japanese'                 },
+  ko:   { flag: '🇰🇷', name: 'Korean'                   },
+  lt:   { flag: '🇱🇹', name: 'Lithuanian'               },
+  lv:   { flag: '🇱🇻', name: 'Latvian'                  },
+  nb:   { flag: '🇳🇴', name: 'Norwegian'                },
+  nl:   { flag: '🇳🇱', name: 'Dutch'                    },
+  pl:   { flag: '🇵🇱', name: 'Polish'                   },
+  pt:   { flag: '🇧🇷', name: 'Portuguese (BR)'          },
+  ptpt: { flag: '🇵🇹', name: 'Portuguese (PT)'          },
+  ro:   { flag: '🇷🇴', name: 'Romanian'                 },
+  ru:   { flag: '🇷🇺', name: 'Russian'                  },
+  sk:   { flag: '🇸🇰', name: 'Slovak'                   },
+  sl:   { flag: '🇸🇮', name: 'Slovenian'                },
+  sv:   { flag: '🇸🇪', name: 'Swedish'                  },
+  tr:   { flag: '🇹🇷', name: 'Turkish'                  },
+  uk:   { flag: '🇺🇦', name: 'Ukrainian'                },
+  zh:   { flag: '🇨🇳', name: 'Chinese (Simplified)'     },
+  zhtw: { flag: '🇹🇼', name: 'Chinese (Traditional)'    },
 };
 
-// ─── URL params ───────────────────────────────────────────────────────────────
+const RESULT_TYPE_META = {
+  web:      { label: 'General Web', icon: '🌐', color: '#5f5e5a' },
+  news:     { label: 'News',        icon: '📰', color: '#185fa5' },
+  blogs:    { label: 'Blogs',       icon: '✍️',  color: '#3b6d11' },
+  academic: { label: 'Academic',    icon: '🎓', color: '#854f0b' },
+};
 
 function getParams() {
   const p = new URLSearchParams(window.location.search);
   const q = p.get('q');
   const langs = p.get('langs');
-  if (q && langs) return { query: q, langs: langs.split(',').filter(Boolean) };
+  const typesParam = p.get('types') || 'web';
+  const resultTypes = typesParam.split(',').filter(Boolean);
+  if (q && langs) return { query: q, langs: langs.split(',').filter(Boolean), resultTypes };
   return null;
 }
 
-// ─── Header ───────────────────────────────────────────────────────────────────
-
-function renderHeader(query, langs) {
+function renderHeader(query, langs, resultTypes) {
   document.getElementById('originalQuery').textContent = query;
+
+  const typeBadgeContainer = document.getElementById('resultTypeBadge');
+  if (typeBadgeContainer) {
+    typeBadgeContainer.innerHTML = '';
+    resultTypes.forEach(type => {
+      const typeMeta = RESULT_TYPE_META[type] || RESULT_TYPE_META.web;
+      const badge = document.createElement('span');
+      badge.className = 'result-type-badge';
+      badge.textContent = `${typeMeta.icon} ${typeMeta.label}`;
+      badge.style.color = typeMeta.color;
+      typeBadgeContainer.appendChild(badge);
+    });
+  }
+
   const pills = document.getElementById('langPills');
   pills.innerHTML = '';
   langs.forEach(code => {
@@ -34,8 +76,6 @@ function renderHeader(query, langs) {
     pills.appendChild(el);
   });
 }
-
-// ─── Section scaffolding ──────────────────────────────────────────────────────
 
 function createSection(code) {
   const meta = LANG_META[code];
@@ -78,27 +118,82 @@ function skeletonHTML() {
   `;
 }
 
-// ─── Render results / errors ──────────────────────────────────────────────────
 
-function renderResults(code, results) {
-  const body = document.getElementById(`body-${code}`);
-  if (!body) return;
-  if (!results || results.length === 0) {
-    body.innerHTML = `<p class="inline-error">No results found for this language.</p>`;
-    return;
+function resultItemHTML(r, i, resultType) {
+  let meta = '';
+
+  if (resultType === 'news') {
+    const parts = [];
+    if (r.source) parts.push(`<span class="result-source">${escapeHTML(r.source)}</span>`);
+    if (r.date)   parts.push(`<span class="result-date">${escapeHTML(r.date)}</span>`);
+    if (parts.length) meta = `<div class="result-meta">${parts.join('<span class="meta-dot">·</span>')}</div>`;
+  } else if (resultType === 'academic') {
+    const parts = [];
+    if (r.authors)   parts.push(`<span class="result-authors">${escapeHTML(r.authors)}</span>`);
+    if (r.journal)   parts.push(`<span class="result-journal">${escapeHTML(r.journal)}</span>`);
+    if (r.cited != null) parts.push(`<span class="result-cited">Cited by ${r.cited}</span>`);
+    if (parts.length) meta = `<div class="result-meta">${parts.join('<span class="meta-dot">·</span>')}</div>`;
   }
-  const items = results.map((r, i) => `
+
+  const href = r.url && r.url.startsWith('http') ? escapeHTML(r.url) : '#';
+
+  return `
     <li class="result-item">
       <span class="result-num">${i + 1}</span>
       <div class="result-content">
-        <a class="result-title" href="${escapeHTML(r.url)}" target="_blank" rel="noopener noreferrer">
+        <a class="result-title" href="${href}" target="_blank" rel="noopener noreferrer">
           ${escapeHTML(r.title)}
         </a>
-        <span class="result-url">${escapeHTML(displayUrl(r.url))}</span>
+        <span class="result-url">${escapeHTML(displayUrl(r.url || ''))}</span>
+        ${meta}
       </div>
     </li>
-  `).join('');
-  body.innerHTML = `<ol class="results-list">${items}</ol>`;
+  `;
+}
+
+function renderResults(code, resultsByType, resultTypes) {
+  const body = document.getElementById(`body-${code}`);
+  if (!body) return;
+  if (resultTypes.length === 1) {
+    const type = resultTypes[0];
+    const data = resultsByType[type];
+    if (!data || data.error) {
+      body.innerHTML = `<div class="inline-error"><span class="error-icon">!</span>${escapeHTML(data?.error || 'No results found.')}</div>`;
+      return;
+    }
+    if (data.length === 0) {
+      body.innerHTML = `<p class="inline-error">No results found for this language.</p>`;
+      return;
+    }
+    body.innerHTML = `<ol class="results-list">${data.map((r, i) => resultItemHTML(r, i, type)).join('')}</ol>`;
+    return;
+  }
+
+  const sections = resultTypes.map(type => {
+    const typeMeta = RESULT_TYPE_META[type] || RESULT_TYPE_META.web;
+    const data = resultsByType[type];
+
+    let inner;
+    if (!data || data.error) {
+      inner = `<div class="inline-error"><span class="error-icon">!</span>${escapeHTML(data?.error || 'No results.')}</div>`;
+    } else if (data.length === 0) {
+      inner = `<p class="type-empty">No results found.</p>`;
+    } else {
+      inner = `<ol class="results-list">${data.map((r, i) => resultItemHTML(r, i, type)).join('')}</ol>`;
+    }
+
+    return `
+      <div class="type-subsection">
+        <div class="type-subheader">
+          <span class="type-subicon">${typeMeta.icon}</span>
+          <span class="type-sublabel" style="color:${typeMeta.color}">${typeMeta.label}</span>
+        </div>
+        ${inner}
+      </div>
+    `;
+  }).join('');
+
+  body.innerHTML = sections;
 }
 
 function renderSectionError(code, message) {
@@ -106,33 +201,29 @@ function renderSectionError(code, message) {
   if (!body) return;
   body.innerHTML = `
     <div class="inline-error">
+      <span class="error-icon">!</span>
       ${escapeHTML(message)}
     </div>
   `;
 }
 
-// ─── Fetch via background service worker ─────────────────────────────────────
-// background.js returns: { translatedQuery: string, results: [{title, url}] }
-//                     or: { error: string }
-
-function fetchResultsForLang(query, code) {
+function fetchResultsForLang(query, code, resultTypes) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
-      { type: 'SEARCH', query, langCode: code },
+      { type: 'SEARCH', query, langCode: code, resultTypes },
       response => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
         } else if (response.error) {
           reject(new Error(response.error));
         } else {
-          resolve(response); // { translatedQuery, results }
+          resolve(response); 
         }
       }
     );
   });
 }
 
-// ─── Fatal error (no URL params) ─────────────────────────────────────────────
 
 function showFatalError() {
   document.getElementById('sectionsContainer').innerHTML = `
@@ -143,7 +234,6 @@ function showFatalError() {
   `;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function escapeHTML(str) {
   return String(str)
@@ -162,32 +252,29 @@ function displayUrl(url) {
   }
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
 
 async function init() {
   const params = getParams();
   if (!params) { showFatalError(); return; }
 
-  const { query, langs } = params;
-  renderHeader(query, langs);
+  const { query, langs, resultTypes } = params;
+  renderHeader(query, langs, resultTypes);
 
   const container = document.getElementById('sectionsContainer');
   container.innerHTML = '';
 
-  // Render all section shells with skeletons immediately
   langs.forEach(code => {
     if (!LANG_META[code]) return;
     container.appendChild(createSection(code));
   });
 
-  // Fetch all languages in parallel; each section updates as it resolves
   await Promise.allSettled(
     langs.map(async code => {
       if (!LANG_META[code]) return;
       try {
-        const { translatedQuery, results } = await fetchResultsForLang(query, code);
-        updateLocalizedQuery(code, translatedQuery); // show real DeepL translation
-        renderResults(code, results);
+        const { translatedQuery, resultsByType } = await fetchResultsForLang(query, code, resultTypes);
+        updateLocalizedQuery(code, translatedQuery);
+        renderResults(code, resultsByType, resultTypes);
       } catch (err) {
         updateLocalizedQuery(code, '—');
         renderSectionError(code, err.message || 'Failed to load results.');
