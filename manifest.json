@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "MultiSearch",
+  "version": "1.0",
+  "description": "Search any query across multiple languages simultaneously.",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://api-free.deepl.com/*",
+    "https://api.deepl.com/*",
+    "https://serpapi.com/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

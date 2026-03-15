@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MultiSearch</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f5f3;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.1);
+      --border-strong: rgba(0,0,0,0.2);
+      --text-primary: #1a1a18;
+      --text-secondary: #6b6b66;
+      --text-tertiary: #9e9e99;
+      --bg-info: #e8f1fc;
+      --text-info: #1a6ed8;
+      --border-selected: #b5d4f4;
+      --btn-bg: #1a6ed8;
+      --btn-hover: #155cb8;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      width: 340px;
+    }
+
+    .popup { padding: 16px; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      width: 26px;
+      height: 26px;
+      background: var(--btn-bg);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    .app-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .search-wrap {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 36px;
+      padding: 0 10px 0 32px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-primary);
+      background: var(--surface);
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      outline: none;
+    }
+
+    .search-input::placeholder { color: var(--text-tertiary); }
+    .search-input:focus { border-color: var(--btn-bg); box-shadow: 0 0 0 3px rgba(26,110,216,0.12); }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .lang-item:hover { background: #f0f0ee; }
+
+    .lang-item.selected {
+      background: var(--bg-info);
+      border-color: var(--border-selected);
+    }
+
+    .lang-item.selected .lang-name { color: var(--text-info); }
+
+    .lang-flag { font-size: 15px; line-height: 1; flex-shrink: 0; }
+
+    .lang-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .checkmark {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      visibility: hidden;
+    }
+
+    .lang-item.selected .checkmark { visibility: visible; }
+
+    .divider {
+      height: 0.5px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .search-btn {
+      width: 100%;
+      height: 36px;
+      background: var(--btn-bg);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .search-btn:hover:not(:disabled) { background: var(--btn-hover); }
+    .search-btn:active:not(:disabled) { transform: scale(0.98); }
+    .search-btn:disabled { background: #a0bde8; cursor: not-allowed; }
+
+    .search-btn svg {
+      width: 13px;
+      height: 13px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .hint b { color: var(--text-info); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="popup">
+
+    <div class="header">
+      <div class="logo">
+        <svg viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4"/><line x1="10" y1="10" x2="14" y2="14"/></svg>
+      </div>
+      <span class="app-name">MultiSearch</span>
+    </div>
+
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="6.5" cy="6.5" r="4"/><line x1="10" y1="10" x2="14" y2="14"/>
+      </svg>
+      <input
+        id="queryInput"
+        class="search-input"
+        type="text"
+        placeholder="Enter your search query…"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <div class="section-label">Search in languages</div>
+
+    <div class="lang-grid">
+      <div class="lang-item" data-lang="de">
+        <span class="lang-flag">🇩🇪</span>
+        <span class="lang-name">German</span>
+        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+      </div>
+      <div class="lang-item" data-lang="fr">
+        <span class="lang-flag">🇫🇷</span>
+        <span class="lang-name">French</span>
+        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+      </div>
+      <div class="lang-item" data-lang="es">
+        <span class="lang-flag">🇪🇸</span>
+        <span class="lang-name">Spanish</span>
+        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+      </div>
+      <div class="lang-item" data-lang="pt">
+        <span class="lang-flag">🇧🇷</span>
+        <span class="lang-name">Portuguese (BR)</span>
+        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+      </div>
+      <div class="lang-item" data-lang="ja">
+        <span class="lang-flag">🇯🇵</span>
+        <span class="lang-name">Japanese</span>
+        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+      </div>
+      <div class="lang-item" data-lang="zh">
+        <span class="lang-flag">🇨🇳</span>
+        <span class="lang-name">Chinese (CN)</span>
+        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+      </div>
+      <div class="lang-item" data-lang="ar">
+        <span class="lang-flag">🇸🇦</span>
+        <span class="lang-name">Arabic</span>
+        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+      </div>
+      <div class="lang-item" data-lang="ko">
+        <span class="lang-flag">🇰🇷</span>
+        <span class="lang-name">Korean</span>
+        <svg class="checkmark" viewBox="0 0 14 14" fill="none" stroke="#1a6ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <button id="searchBtn" class="search-btn" disabled>
+      <svg viewBox="0 0 14 14"><circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="13" y2="13"/></svg>
+      Search across languages
+    </button>
+    <div id="hint" class="hint">Select at least 1 language to search</div>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
