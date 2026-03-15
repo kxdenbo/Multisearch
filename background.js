@@ -45,20 +45,21 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   return true;
 });
 
-// ─── Main flow: translate → search ───────────────────────────────────────────
+// ─── Main flow: translate query → search → translate titles back ──────────────
 
 async function handleSearch(originalQuery, langCode, config) {
   validateKeys();
 
-  // Step 1: translate query with DeepL
+  // Step 1: translate query to target language
   let translatedQuery;
   try {
-    translatedQuery = await translateQuery(originalQuery, config.deepl);
+    const out = await translate([originalQuery], config.deepl);
+    translatedQuery = out[0];
   } catch (err) {
-    throw new Error(`Translation failed: ${err.message}`);
+    throw new Error(`Query translation failed: ${err.message}`);
   }
 
-  // Step 2: search translated query with SerpAPI
+  // Step 2: search with translated query via SerpAPI
   let results;
   try {
     results = await searchSerpApi(translatedQuery, config.gl, config.hl);
@@ -66,12 +67,30 @@ async function handleSearch(originalQuery, langCode, config) {
     throw new Error(`Search failed: ${err.message}`);
   }
 
+  // Step 3: translate all result titles back to English in one batch request
+  if (results.length > 0) {
+    try {
+      const titles = results.map(r => r.title);
+      const translatedTitles = await translate(titles, 'EN-US');
+      results = results.map((r, i) => ({
+        ...r,
+        title: translatedTitles[i] || r.title,
+        originalTitle: r.title,
+      }));
+    } catch (err) {
+      // Non-fatal: keep original titles if back-translation fails
+      console.warn('Title back-translation failed, keeping original titles:', err.message);
+    }
+  }
+
   return { translatedQuery, results };
 }
 
-// ─── DeepL translation ────────────────────────────────────────────────────────
+// ─── DeepL translation (batch) ───────────────────────────────────────────────
+// Accepts an array of strings, returns an array of translated strings.
+// DeepL supports up to 50 texts per request, so all titles fit in one call.
 
-async function translateQuery(text, targetLang) {
+async function translate(texts, targetLang) {
   const res = await fetch(`${DEEPL_BASE}/v2/translate`, {
     method: 'POST',
     headers: {
@@ -79,7 +98,7 @@ async function translateQuery(text, targetLang) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      text: [text],
+      text: texts,
       target_lang: targetLang,
     }),
   });
@@ -91,7 +110,7 @@ async function translateQuery(text, targetLang) {
   }
 
   const data = await res.json();
-  return data.translations?.[0]?.text ?? text;
+  return data.translations.map(t => t.text);
 }
 
 // ─── SerpAPI search ───────────────────────────────────────────────────────────
